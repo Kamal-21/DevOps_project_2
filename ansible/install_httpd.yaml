@@ -1,0 +1,52 @@
+---
+- name: Uninstall Nginx and Install HTTPD
+  hosts: all
+  become: true
+  tasks:
+    - name: Stop Nginx service
+      service:
+        name: nginx
+        state: stopped
+      ignore_errors: yes
+
+    - name: Uninstall Nginx
+      package:
+        name: nginx
+        state: absent
+
+    - name: Install HTTPD
+      package:
+        name: apache2
+        state: present
+
+    - name: Set index.html for client1
+      copy:
+        content: |
+          <html>
+            <head><title>Welcome to Client1</title></head>
+            <body>
+              <h1>Hello from Client1</h1>
+            </body>
+          </html>
+        dest: /var/www/html/index.html
+      when: ansible_hostname == 'ip-172-31-47-116'
+
+    - name: Set index.html for client2
+      copy:
+        content: |
+          <html>
+            <head><title>Welcome to Client2</title></head>
+            <body>
+              <h1>Hello from Client2</h1>
+            </body>
+          </html>
+        dest: /var/www/html/index.html
+      when: ansible_hostname == 'ip-172-31-44-192'
+
+    - name: Start HTTPD service
+      service:
+        name: apache2
+        state: started
+
+
+
